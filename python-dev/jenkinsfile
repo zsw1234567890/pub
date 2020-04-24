@@ -1,0 +1,17 @@
+node {
+  stage('Build') {
+     docker.withRegistry('http://192.168.239.151:5000') {
+     def customImage = docker.build("liyi888/lamp:latest","./lamp")
+     customImage.push()
+     }
+  }
+  stage('depoly') {
+    sh'''
+      ssh root@192.158.239.151 'docker stop web | true'
+      ssh root@192.168.239.151 'docker rm web -f | true'
+      ssh root@192.168.239.151 'docker rmi 192.168.239.151:5000/liyi888/lamp:latest | true'
+      ssh root@192.168.239.151 'docker pull 192.168.239.151:5000/liyi888/lamp:lastest | true'
+      ssh root@192.168.239.151 'docker run -itd --name web -p 32768:80 102.168.239.151:5000/liyi888/lamp:latest'
+     '''
+  }
+}
